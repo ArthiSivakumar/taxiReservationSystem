@@ -1,0 +1,1 @@
+call InsertBookingProcedure(str_to_date('02-10-2014 21::03::23','%d-%m-%Y %H::%i::%s'),str_to_date('03-10-2014 21::03::23','%d-%m-%Y %H::%i::%s'),str_to_date('03-10-2014 23::03::23','%d-%m-%Y %H::%i::%s'),'b','cbe','che',29,'jayaachu21@gmail.com','9789364587','tn 44 a 4444');

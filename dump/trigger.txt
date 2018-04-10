@@ -1,0 +1,106 @@
+CREATE TABLE Emp (
+	empid NUMERIC(6) PRIMARY KEY,
+	name VARCHAR(10) NOT NULL UNIQUE,
+	city VARCHAR(10) DEFAULT 'Coimbatore',
+	dob date NOT NULL,
+	Sex VARCHAR(1) CHECK(Sex IN ('m','f')),
+	Doj DATE NOT NULL,
+	sal NUMERIC(8,2) CHECK(sal>=12000 AND sal<=50000),
+	Dept CHAR(10) CHECK(Dept in ('ACC','FIN','EDP'))
+);
+
+
+INSERT INTO Emp values(1001,'Anish','Chennai','21-apr-1966','m','10-jun-1986',17000,'ACC');
+INSERT INTO Emp values(1002,'Anandi','Ooty','11-sep-75','f','17-jun-97',15000,'FIN');
+INSERT INTO Emp values(1003,'Shiva','Kambam','07-feb-66','m','21-apr-91',21000,'EDP');
+INSERT INTO Emp values(1004,'Deepa','Trichi_1','14-feb-67','m','21-apr-90',null,'FIN');
+INSERT INTO Emp values(1005,'Engela','Kambam','23-mar-70','f','21-apr-86',22000,'EDP');
+INSERT INTO Emp values(1006,'Krish','Trichi_1','14-jul-70','f','21-mar-89',12000,'ACC');
+INSERT INTO Emp values(1007,'Kamal','Ooty','14-jul-66','m','04-mar-90',12000,'FIN');
+INSERT INTO Emp values(1008,'Neela','Madurai','27-jun-69','f','07-apr-90',25000,'EDP');
+INSERT INTO Emp values(1009,'Nila','Coimbatore','29-oct-62','f','21-apr-93',20000,'ACC');
+INSERT INTO Emp values(1010,'Rajesh','Pollachi','21-apr-66','m','12-oct-93',null,'FIN');
+INSERT INTO Emp values(1011,'Rekha','Coimbatore','21-apr-70','f','14-dec-99',20000,'ACC');
+INSERT INTO Emp values(1012,'Xavier','Madurai','21-apr-71','m','12-mar-97',20000,'ACC');
+INSERT INTO Emp values(1013,'Vinotha','Trichi_2','21-apr-72','f','21-apr-94',null,'ACC');
+
+create table Deleted(
+	EId number(4) primary key,
+	Ename varchar(15) not null,
+	Dept char(10) ,
+	Salary number(8,2)
+);
+
+create table Inserted(
+	EId number(4) primary key,
+	Ename varchar(15) not null,
+*
+
+
+
+
+
+
+
+	Dept char(10) ,
+	Salary number(8,2)
+);
+
+create table Updated(
+	EId number(4) primary key,
+	Ename varchar(15) not null,
+	Dept char(10) ,
+	Salary number(8,2)
+);
+
+create or replace trigger EMPSAL_UPDATE
+before update on Emp
+for each row
+when(new.Sal > old.Sal)
+begin
+	insert into Updated values(:old.Empid,:old.name,:old.dept,:old.sal);
+end;
+
+
+
+
+
+create or replace trigger EMP_INSERT
+after insert on Emp
+for each row
+begin
+	insert into Inserted values(:new.Empid,:new.name,:new.dept,:new.sal);
+end;
+
+
+
+
+
+create or replace trigger EMP_DEL
+before delete on EMP
+for each row
+begin
+	insert into Deleted values(:old.Empid,:old.name,:old.dept,:old.sal);
+end;
+
+
+
+
+
+insert into Emp values(1014,'Vani','Chennai','13-jun-1994','f','11-aug-2013',15000,'ACC');
+insert into Emp values(1016,'James','Chennai','13-jun-1994','f','11-aug-2013',16000,'ACC');
+
+
+
+create or replace view cc(empid, name, city)
+as
+	select "EMPID","NAME","CITY"
+from emp;
+
+insert into cc(empid, name, city) values(1015,'ghjkii','vbcghdv');
+
+create or replace trigger viewtrigger
+instead of insert 
+on cc for each row
+begin
+insert into emp(empid,city) values(1020,'Chennai');

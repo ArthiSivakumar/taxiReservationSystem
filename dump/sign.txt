@@ -1,0 +1,82 @@
+--------------------------THIS IS MA CHECK.PHP----------------------------------------------------------------
+<?php
+	include"conn.php";
+    $username = $_POST["Email"];
+	$password=$_POST["mypassword"];
+	session_start();
+     $_SESSION['uname']=$username;
+
+
+	 $query="SELECT * FROM customer WHERE email_id = '$username' and password= '$password'";
+	$result=mysql_query($query) or die(mysql_error());
+	if(mysql_num_rows($result) == 1) {
+ 		 echo "SUCCESS";
+	}
+	else {
+  		echo "<br>"." INCORRECT USERNAME OR PASSWORD !!TRY AGAIN ";	
+	}
+?>
+---------------------------------------CHECK.PHP ENDS HERE--------------------------------------------------------
+----------------------------------THIS IS SIGNIN.PHP---------------------------------------------------------------------
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title></title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="layout.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+<script>
+function validateForm(){
+	var u=document.forms["myform1"]["Email"].value;
+	var p=document.forms["myform1"]["Pass"].value;
+	if (u==null || u==""){
+  		alert("Username must be filled out");
+  		return false;
+	}
+	if (p==null || p==""){
+		alert("Please fill ur password ");
+  		return false;
+	}
+  	return true;
+  }
+</script>
+<body>
+<div id="navigation">
+	<ul>
+		<li><a href="index.php" class="active">About Us</a></li>
+		<li><a href="bookticket.php">BOOKING</a></li>
+		<li><a href="signin.php">SIGNIN</a></li>
+		<li><a href="signup.php">SIGNUP</a></li>
+		<li><a href="signout.php">SIGNOUT</a></li>
+		<li><a href="#">Support</a></li>
+		<li><a href="#">Contact</a></li>
+	</ul>
+</div>
+<div id="content">
+	<div id="logo">
+		<h1>Your Travel Resort</h1>
+	</div>
+	<div id="splash"><img src="images/image03.jpg" alt="" /></div>
+	<div id="page">
+		<div id="column1">
+			<div class="box1">
+				<form name="myform" action="check.php" onsubmit="return validateForm()" method="post">
+					<p>E-MAIL			: <INPUT type="text" 	name="Email" 		 id="Email" 	size=25 maxlength=30></p>
+					<p>PASSWORD			: <INPUT TYPE=PASSWORD 	NAME="mypassword" 	 id = "Pass" 	size=25 maxlength=15></p>						
+					<p><input type="submit" value="Submit"></p>
+				</form>
+			</div>
+		</div>
+		<div id="column2">
+			<h2>Latest News</h2>
+			<p>Nunc euismod, felis et adipiscing volutpat, mauris ligula lacinia lacus ac accumsan pede lacus sed nulla.</p>
+			<p><a href="#" class="more">Read More</a> </p>
+			<p>Nunc euismod, felis et adipiscing volutpat, mauris ligula lacinia lacus ac accumsan pede lacus sed nulla.</p>
+			<p><a href="#" class="more">Read More</a> </p>
+		</div>
+	</div>
+	<div style="clear: both;">&nbsp;</div>
+</div>
+</body>
+</html>

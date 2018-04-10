@@ -1,0 +1,25 @@
+CREATE TABLE DRIVER(
+	DriverId		NUMBER(3) AUTO INCREMENT,
+	DriverName 	VARCHAR(20) NOT NULL,
+	Address		VARCHAR2(100)		NOT NULL,
+	Cug			NUMBER(10),
+	MobileNo		NUMBER(10),
+	Salary		NUMBER(5),
+	DateOfJoining	DATE,
+	CONSTRAINT DRIVER_PK		PRIMARY KEY(DriverId),
+	CONSTRAINT DRIVER_NAME_INITCAP	CHECK(DriverName=INITCAP(DriverName)),
+	CONSTRAINT DRIVER_CHECK_SALARY	CHECK(Salary >1000),
+	CONSTRAINT DRIVER_CHECK_MOB		CHECK(MobileNo like '9%'or MobileNo like '8%' or MobileNo like '7%'),
+	CONSTRAINT DRIVER_CHECK_CUG		CHECK(Cug like '9%' or Cug like '8%' or Cug like '7%'),
+	CONSTRAINT DRIVER_UNIQUE_CUG	UNIQUE(Cug)
+);
+
+insert into driver values('Abc','26,I Street, V.C.Nagar, G.N. Mills (PO), Coimbatore-641029',9876543213,9876543210,5000,'21-jan-2001');
+
+
+CREATE FUNCTION `test1`(`username1` INT) RETURNS INT NOT DETERMINISTIC NO SQL SQL SECURITY DEFINER begin
+declare
+username1 int;
+select num1 into username1 from test1;
+return 0;
+end

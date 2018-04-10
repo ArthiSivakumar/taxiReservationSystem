@@ -1,0 +1,96 @@
+CREATE TABLE deleted_details (
+	`travel_id`		INT,
+	`date_of_booking` 	TIMESTAMP,
+	`date_of_journey`  	TIMESTAMP,
+	`travel_status`		CHAR(1),
+	`source`		VARCHAR(20),
+	`destination`		VARCHAR(20),
+	`distance`		INT,
+	`email_id`		VARCHAR(30),
+	`cug_no`		VARCHAR(15),
+	`taxi_no`		VARCHAR(15)
+);
+
+
+DROP TRIGGER IF EXISTS del_details;
+delimiter $$
+CREATE TRIGGER del_details BEFORE DELETE ON taxi
+	FOR EACH ROW
+	BEGIN
+		DECLARE travelid INT;
+        	DECLARE dateofbooking TIMESTAMP;
+	        DECLARE dateofjourney TIMESTAMP;
+        	DECLARE travelstatus CHAR(1);
+	        DECLARE src	VARCHAR(20);
+		DECLARE dest VARCHAR(20);
+		DECLARE dist INT;
+		DECLARE emailid	VARCHAR(30);
+		DECLARE cugno VARCHAR(15);
+		DECLARE taxino	VARCHAR(15);
+        	DECLARE v_finished INT;
+		DECLARE totalrows INT;
+		DECLARE rec_cursor CURSOR FOR
+		select `travel_id`,`date_of_booking`,`date_of_journey`,`travel_status`,`source`,`destination`,`distance`,`email_id`,`cug_no`,`taxi_no` from `booking_details` where taxi_no = Old.taxi_no;
+		DECLARE CONTINUE HANDLER 
+	        FOR NOT FOUND SET v_finished = 1;
+		select count(*) into totalrows from `booking_details` where taxi_no = Old.taxi_no;
+		OPEN rec_cursor;
+		get_rec:LOOP
+			IF totalrows = 0 THEN
+				LEAVE get_rec;
+			END IF;
+			FETCH rec_cursor into travelid,dateofbooking,dateofjourney,travelstatus,src,dest,dist,emailid,cugno,taxino;
+			insert into deleted_details values(travelid,dateofbooking,dateofjourney,travelstatus,src,dest,dist,emailid,cugno,taxino);		
+			delete from booking_details where travel_id= travelid;
+			IF v_finished = 1 THEN 
+            			LEAVE get_rec;
+        		END IF;
+			set totalrows = totalrows-1;
+		END LOOP get_rec;
+		CLOSE rec_cursor;
+		
+	END$$
+delimiter ;;
+
+
+
+
+DROP TRIGGER IF EXISTS del_driver_details;
+delimiter $$
+CREATE TRIGGER del_driver_details BEFORE DELETE ON driver
+	FOR EACH ROW
+	BEGIN
+		DECLARE travelid INT;
+        	DECLARE dateofbooking TIMESTAMP;
+	        DECLARE dateofjourney TIMESTAMP;
+        	DECLARE travelstatus CHAR(1);
+	        DECLARE src	VARCHAR(20);
+		DECLARE dest VARCHAR(20);
+		DECLARE dist INT;
+		DECLARE emailid	VARCHAR(30);
+		DECLARE cugno VARCHAR(15);
+		DECLARE taxino	VARCHAR(15);
+		DECLARE v_finished INT;
+		DECLARE totalrows INT;
+		DECLARE rec_cursor CURSOR FOR
+        	select `travel_id`,`date_of_booking`,`date_of_journey`,`travel_status`,`source`,`destination`,`distance`,`email_id`,`cug_no`,`taxi_no` from `booking_details` where cug_no = Old.cug_no;
+		DECLARE CONTINUE HANDLER 
+	        FOR NOT FOUND SET v_finished = 1;
+		select count(*) into totalrows from `booking_details` where cug_no = Old.cug_no;
+		OPEN rec_cursor;
+		get_rec:LOOP
+			IF totalrows = 0 THEN
+				LEAVE get_rec;
+			END IF;
+			FETCH rec_cursor into travelid,dateofbooking,dateofjourney,travelstatus,src,dest,dist,emailid,cugno,taxino;
+			insert into deleted_details values(travelid,dateofbooking,dateofjourney,travelstatus,src,dest,dist,emailid,cugno,taxino);
+			delete from booking_details where travel_id= travelid;
+			IF v_finished = 1 THEN 
+            			LEAVE get_rec;
+        		END IF;
+			set totalrows = totalrows-1;
+		END LOOP get_rec;
+		CLOSE rec_cursor;
+		
+	END$$
+delimiter ;;

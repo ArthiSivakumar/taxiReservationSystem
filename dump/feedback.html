@@ -1,0 +1,103 @@
+<?php 
+    session_start();
+	include "conn.php";
+	if(!isset($_SESSION['uname'])){
+		include "index.php";
+		exit;
+	}
+	$user=$_SESSION['uname'];
+    $mysqli = new mysqli("localhost", "root", "", "DBMS");
+	if ($mysqli->connect_errno) {
+		echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error."<br>";
+	}
+	echo "<br>";
+	if (!$mysqli->query("DROP VIEW IF EXISTS CustomerView")){
+		echo "Drop VIEW  failed: (" . $mysqli->errno . ") " . $mysqli->error;
+	}
+	if (!$mysqli->query("CREATE VIEW CustomerView(email_id,travel_id,date_of_booking,date_of_journey,source,destination) AS
+						SELECT email_id,travel_id,date_of_booking,date_of_journey,source,destination FROM booking_details WHERE travel_status='b';"))
+						{
+							echo "CREATE VIEW FAIED: (".$mysqli->errno .")".$mysqli->error;
+						}
+	$query="SELECT travel_id,date_of_booking,date_of_journey,source,destination 
+							FROM CustomerView where email_id='$user' and date_of_journey>=CURRENT_TIMESTAMP();";
+	$result=mysql_query($query) or die(mysql_error());
+	$travelid=array();
+	$dateofbooking=array();
+	$dateofjourney=array();
+	$source=array();
+	$destination=array();
+	if(mysql_num_rows($result)>0){
+		$j=0;
+		while($info = mysql_fetch_array($result)){
+			$travelid[$j]= $info['travel_id'];
+			$dateofbooking[$j]= $info['date_of_booking'];
+			$dateofjourney[$j]= $info['date_of_journey'];
+			$source[$j]= $info['source'];
+			$destination[$j]= $info['destination'];
+			$j=$j+1;
+		}		
+		$norow=0;
+	}
+	else{
+		$norow=1;
+	}
+	$count=$j-1;
+?>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title></title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="layout.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+<body>
+<div id="navigation">
+	<ul>
+		<li><a href="adminsignin.php" class="active">ADMIN</a></li>
+		<li><a href="driversignin.php">DRIVER</a></li>
+	</ul>
+</div>
+<div id="content">
+	<div id="logo">
+		<h1>Your Travel Resort</h1>
+	</div>
+	<div id="splash"><img src="images/image03.jpg" alt="" /></div>
+	<div id="page">
+		<div id="column1">
+			<div class="box1">
+				<h2>Welcome to my website </h2>
+			</div>
+			<form name="myform1" action="insertingfeedback.php" onsubmit="return validateForm()" method="post">
+			<p>Drivers Punctuality <input type="radio" name="dp" id="dp" value="1">&#10025;
+								   <input type="radio" name="dp" id="dp" value="2">&#10025;&#10025;
+								   <input type="radio" name="dp" id="dp" value="3">&#10025;&#10025;&#10025;</p>
+			<p>Taxi Comfortable <input type="radio" name="tc" id="tc" value="1">&#10025;
+								   <input type="radio" name="tc" id="tc" value="2">&#10025;&#10025;
+								   <input type="radio" name="tc" id="tc" value="3">&#10025;&#10025;&#10025;</p>
+			<p>Journey Comfortable <input type="radio" name="jc" id="jc" value="1">&#10025;
+								   <input type="radio" name="jc" id="jc`" value="2">&#10025;&#10025;
+								   <input type="radio" name="jc" id="jc" value="3">&#10025;&#10025;&#10025;</p>
+			<p>Customer care <input type="radio" name="cc" id="cc" value="1">&#10025;
+								   <input type="radio" name="cc" id="cc" value="2">&#10025;&#10025;
+								   <input type="radio" name="cc" id="cc" value="3">&#10025;&#10025;&#10025;</p>
+			<p>Booking user friendly <input type="radio" name="bu" id="bu" value="1">&#10025;
+								   <input type="radio" name="bu" id="bu" value="2">&#10025;&#10025;
+								   <input type="radio" name="bu" id="bu" value="3">&#10025;&#10025;&#10025;</p>
+			<p>Nominal rates		<input type="radio" name="nr" id="nr" value="1">&#10025;
+								   <input type="radio" name="nr" id="nr" value="2">&#10025;&#10025;
+								   <input type="radio" name="nr" id="nr" value="3">&#10025;&#10025;&#10025;</p>
+			<p>Would you use us again?<input type="radio" name="use" id="use" value="yes">Yes
+									  <input type="radio" name="use" id="use" value="no">NO</p>
+					<input type="submit" value="Submit">
+			</form>
+		</div>
+		<div id="column2">
+			
+		</div>
+	</div>
+	<div style="clear: both;">&nbsp;</div>
+</div>
+</body>
+</html>

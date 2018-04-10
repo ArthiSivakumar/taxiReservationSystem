@@ -1,0 +1,40 @@
+/* taxi details */
+
+CREATE TABLE taxi (
+	`TaxiNo`	VARCHAR(15),
+	`TaxiStatus`	CHAR(1) 	DEFAULT 'a',
+	`TaxiCapacity`	INT(5)		NOT NULL,
+	`TaxiAc`	CHAR(1)		NOT NULL,
+	CONSTRAINT taxi_no_primarykey	PRIMARY KEY(`TaxiNo`)
+);
+
+/* to validate data */
+
+DROP TRIGGER IF EXISTS taxi_check_validity;
+delimiter $$
+CREATE TRIGGER taxi_check_validity BEFORE INSERT ON `taxi`
+	FOR EACH ROW
+	BEGIN
+		DECLARE msg varchar(255);
+		IF (NEW.TaxiNo NOT REGEXP '^[A-Z]{2} [0-9]{2} [A-Z]+ [0-9]{4}$')
+		THEN
+			SET msg = concat('Constraint violated : not a number plate ', cast(New.TaxiNo as char));
+			SIGNAL sqlstate '45000' SET message_text = msg;
+		END IF;
+		IF (NEW.TaxiStatus NOT in('a','b'))
+		THEN
+			SET msg = concat('Constraint violated : not a valid choice ', cast(New.TaxiStatus as char));
+			SIGNAL sqlstate '45000' SET message_text = msg;
+		END IF;
+		IF (NEW.TaxiCapacity < 0 or NEW.TaxiCapacity > 15)
+		THEN
+			SET msg = concat('Constraint violated : not a number ', cast(New.TaxiCapacity as char));
+			SIGNAL sqlstate '45000' SET message_text = msg;
+		END IF;
+		IF (NEW.TaxiAc NOT in('y','n'))
+		THEN
+			SET msg = concat('Constraint violated : not a valid choice ', cast(New.TaxiAc as char));
+			SIGNAL sqlstate '45000' SET message_text = msg;
+		END IF;
+	END$$
+delimiter ;;

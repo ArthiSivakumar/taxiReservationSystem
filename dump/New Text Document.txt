@@ -1,0 +1,192 @@
+#include<iostream>
+using namespace std;
+class avl{
+        int info;
+        avl *left;
+        avl *right;
+        int bf;
+        public:
+                avl(){
+                        info=0;
+                        left=right=NULL;
+                        bf=0;
+                }
+                avl(int a){
+                        info=a;
+                        left=right=NULL;
+                        bf=0;
+                }
+                void insert(int a){
+                        avl *temp=this;
+                        if(temp->info>a){
+                                if(temp->left==NULL){
+                                        temp->left=new avl(a);
+                                        temp=temp->left;
+                                }
+                                else{
+                                        temp=temp->left;
+                                        temp->insert(a);
+                                }
+                        }
+                        else if(temp->info<a){
+                                if(temp->right==NULL){
+                                        temp->right=new avl(a);
+                                        temp=temp->right;
+                                }
+                                else{
+                                        temp=temp->right;
+                                        temp->insert(a);
+                                }
+                        }
+                        update();
+                }
+                avl* check(int a){
+                        avl *temp=this;
+                        avl *ances2=NULL;
+                        int count=0,count1=0;
+                        while(temp->info!=a){
+                                if(temp->bf>=2 ||temp->bf<=-2)
+                                        count++;
+                                if(temp->info>a)
+                                        temp=temp->left;
+                                else if(temp->info<a)
+                                        temp=temp->right;
+                        }
+                        temp=this;
+                        while(temp->info!=a){
+                                if(temp->bf>=2||temp->bf<=-2){
+                                        count1++;
+                                        if(count1==count)
+                                                break;
+                                }
+                                if(a>temp->info){
+                                        ances2=temp;
+                                        temp=temp->right;
+                                }
+                                else if(a<temp->info){
+                                        ances2=temp;
+                                        temp=temp->left;
+                                }
+                        }
+                        if(a!=temp->info){
+                                cout<<"hi vani!!"<<endl;
+                                temp=temp->rotate(ances2);
+                                return temp;
+                        }
+                        return this;
+                }
+                avl* rotate(avl *ances2){
+                        cout<<"Rotate: "<<endl;
+                        avl *ances=this;
+                        avl *temp2=NULL;
+                        if(ances->bf==-2){
+                                ances=ances->right;
+                                temp2=ances;
+                                if(ances->bf==-1)
+                                        ances=rr_rotation(ances2,temp2);
+                                else
+                                        ances=rl_rotation(ances,ances2,temp2);
+                        }
+                        else{
+                                ances=ances->left;
+                                temp2=ances;
+                                if(ances->bf==-1)
+                                        ances=lr_rotation(ances,ances2,temp2);
+                                else
+                                        ances=ll_rotation(ances2,temp2);
+                        }
+                        return ances;
+                }
+                avl* ll_rotation(avl *ances2,avl* temp2){
+                        cout<<endl<<"Inside ll:"<<endl;
+                        avl *temp1=this,*temp=temp1->left;
+                        if(ances2!=NULL){
+                                temp1->left=temp2->right;
+                                temp->right=temp1;
+                                ances2->left=temp;
+                                return ances2;
+                        }
+                        else{
+                                temp1->left=temp2->right;
+                                temp->right=temp1;
+                                return temp;
+                        }
+                }
+                avl* rr_rotation(avl *ances2,avl *temp2){
+                        cout<<endl<<"Inside rr:"<<endl;
+                        avl *temp1=this,*temp=temp1->right;
+                        if(ances2!=NULL){
+                                temp1->right=temp2->left;
+                                temp->left=temp1;
+                                ances2->right=temp;
+                                return ances2;
+                        }
+                        else{
+                                temp1->right=temp2->left;
+                                temp->left=temp1;
+                                return temp;
+                        }
+                }
+                avl * lr_rotation(avl *ances,avl *ances2,avl *temp2){
+                        temp2->rr_rotation(ances2,temp2);
+                        ances->ll_rotation(ances2,temp2);
+                }
+                avl * rl_rotation(avl *ances,avl *ances2,avl *temp2){
+                        temp2->ll_rotation(ances2,temp2);
+                        ances->rr_rotation(ances2,temp2);
+                }
+                int maxHeight(avl *t,int max,int curr){
+                        int h=curr;
+                        if(t->left!=NULL)
+                                h=maxHeight(t->left,max,curr+1);
+                        if(max<h)
+                                max=h;
+                        if(t->right!=NULL)
+                                h=maxHeight(t->right,max,curr+1);
+                        if(max<h)
+                                max=h;
+                        return max;
+                }
+                void display(){
+                        avl* temp=this;
+                        if(temp!=NULL){
+                                temp->left->display();
+                                cout<<temp->info<<"   "<<temp->bf<<endl;
+                                temp->right->display();
+                        }
+                }
+                int bfac(){
+                        int a=(left==NULL)?0:maxHeight(left,0,0)+1;
+                        int b=(right==NULL)?0:maxHeight(right,0,0)+1;
+                        return (bf=a-b);
+                }
+                void update(){
+                        avl *temp=this;
+                        if(temp->left!=NULL)
+                                (temp->left)->update();
+                        bfac();
+                        if(temp->right!=NULL)
+                                (temp->right)->update();
+                }
+};
+main(){
+        avl t(10),*p=&t;
+        int a[]={8,15,12,16,11};
+        for(int i=0;i<5;i++){
+                p->insert(a[i]);
+                p=p->check(a[i]);
+                p->update();
+        }
+        p->display();
+        int h=p->maxHeight(p,0,0);
+        cout<<endl<<h<<endl;
+}
+
+
+
+
+
+
+
+
+

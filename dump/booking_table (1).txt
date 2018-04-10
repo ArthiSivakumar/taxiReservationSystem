@@ -1,0 +1,77 @@
+CREATE TABLE booking_details (
+	`travel_id`			INT NULL AUTO_INCREMENT,
+	`date_of_booking` 	TIMESTAMP,
+	`date_of_journey`  	TIMESTAMP,
+	`end_of_journey`	TIMESTAMP,
+	`travel_status`		CHAR(1) DEFAULT 'b',
+	`source`		VARCHAR(20),
+	`destination`		VARCHAR(20),
+	`distance`		INT,
+	`email_id`		VARCHAR(30),
+	`cug_no`		VARCHAR(15),
+	`taxi_no`		VARCHAR(15),
+	CONSTRAINT travel_id_primarykey PRIMARY KEY(`travel_id`),
+	CONSTRAINT email_id_fkey FOREIGN KEY(`email_id`) REFERENCES `customer`(`email_id`),
+	CONSTRAINT cug_no_fkey FOREIGN KEY(`cug_no`) REFERENCES `driver`(`cug_no`),
+	CONSTRAINT taxi_no_fkey FOREIGN KEY(`taxi_no`) REFERENCES `taxi`(`taxi_no`)
+);
+
+DROP TRIGGER IF EXISTS booking_check_validity;
+delimiter $$
+CREATE TRIGGER booking_check_validity BEFORE INSERT ON `booking_details`
+	FOR EACH ROW
+	BEGIN
+		DECLARE msg varchar(255);
+		IF (NEW.date_of_booking > New.date_of_journey)
+		THEN
+			SET msg = concat('Constraint violated : invalid date of journey ', cast(New.date_of_journey as char));
+			SIGNAL sqlstate '45000' SET message_text = msg;
+		END IF;
+		IF (NEW.travel_status NOT in('b','c'))
+		THEN
+			SET msg = concat('Constraint violated : not a valid choice ', cast(New.travel_status as char));
+			SIGNAL sqlstate '45000' SET message_text = msg;
+		END IF;
+		IF (New.cug_no='b' and New.taxi_no='b')
+		THEN
+			call InsTransLog(:New.date_of_booking,:New.date_of_journey,:New.end_of_journey,:New.email_id,'Not enough taxi and driver');
+		ELSEIF (New.cug_no='b')
+		THEN
+			insert into transaction_error_log values(Null,New.date_of_booking,New.date_of_journey,New.end_of_journey,New.email_id,'Not enough driver');
+		ELSEIF (New.taxi_no='b')
+		THEN
+			insert into transaction_error_log values(Null,New.date_of_booking,New.date_of_journey,New.end_of_journey,New.email_id,'Not enough taxi');
+			
+		END IF;
+	END$$
+delimiter ;;
+
+
+
+
+insert into `booking_details` values(NULL,str_to_date('21-feb-2014','%d-%M-%Y'),str_to_date('21-dec-2014','%d-%M-%Y'),'b','bh','dw',35,'jayaachu21@gmail.com',9843333585,'tn 37 bc 6358');
+
+insert into `booking_details` values(NULL,CURRENT_TIMESTAMP(),str_to_date('21-10-2014 02:10:00',
+                                                                          '%d-%m-%Y %H:%i:%s'),str_to_date('21-10-2014 03:10:00',
+                                                                          '%d-%m-%Y %H:%i:%s'),'b','bh','dw',35,'jayaachu21@gmail.com',9843333886,'tn 37 bc 1234');
+
+
+
+SELECT taxi_no,count(*) FROM taxi WHERE taxi_no in(select taxi_no from taxi where taxi_ac='n') AND taxi_no NOT IN 
+				(SELECT taxi_no FROM `booking_details` WHERE
+				date_of_journey>=str_to_date('07-10-2014 14:00:00','%Y-%m-%d %H:%i:%s') AND
+				end_of_journey<=str_to_date('07-10-2014 19:00:00','%Y-%m-%d %H:%i:%s') OR travel_status='b'); 
+
+SELECT  cug_no,count(*)  INTO cugno,drivcount FROM driver WHERE cug_no IN 
+				(SELECT cug_no FROM booking_details WHERE
+				date_of_journey>=str_to_date('07-10-2014 14:00:00','%Y-%m-%d %H:%i:%s') AND 
+				end_of_journey<=str_to_date('07-10-2014 19:00:00','%Y-%m-%d %H:%i:%s') AND travel_status='c')
+
+
+SELECT  cug_no,count(*)  FROM driver WHERE cug_no NOT IN 
+				(SELECT cug_no FROM booking_details WHERE
+				(date_of_journey>=str_to_date('07-10-2014 14:00:00','%Y-%m-%d %H:%i:%s') AND 
+				str_to_date('07-10-2014 19:00:00','%Y-%m-%d %H:%i:%s')>=end_of_journey) OR travel_status='b');
+
+
+

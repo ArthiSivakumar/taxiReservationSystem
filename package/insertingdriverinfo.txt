@@ -1,0 +1,37 @@
+<?php
+	$mysqli = new mysqli("localhost", "root", "", "DBMS");
+	$cugno=$_POST['CugNo'];
+	$address=$_POST['Address'];
+	$salary=$_POST['Salary'];
+	$mobileno=$_POST['MobileNo'];
+	$name=$_POST['Name'];
+	$doj=$_POS['Doj'];
+	if ($mysqli->connect_errno) {
+		echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+	}
+	if (!$mysqli->query("DROP PROCEDURE IF EXISTS insertDriverProcedure")){
+		echo "Drop procedure  failed: (" . $mysqli->errno . ") " . $mysqli->error;
+	}	 
+	echo "<br>";
+	if (!$mysqli->query("CREATE PROCEDURE insertDriverProcedure(
+	IN DriverName VARCHAR(20),
+	IN DriverAddress VARCHAR(70),
+	IN DriverCugNo VARCHAR(15),
+	IN DriverMobileNo VARCHAR(15),
+	IN DriverSalary INT,
+	IN DriverDoj VARCHAR(15)
+	)
+            BEGIN
+                    insert into driver values(lower(DriverName),DriverAddress,DriverCugNo,DriverMobileNo,DriverSalary,DATE_FORMAT(DriverDoj,'%d-%M-%Y'));
+            END;")) {
+    echo "Stored procedure creation failed: (" . $mysqli->errno . ") " . $mysqli->error;
+					}
+	echo "<br>";
+	if (!$mysqli->query("CALL insertDriverProcedure('$name','$address','$cugno','$mobileno',$salary,'$doj')")) {
+		echo "CALL failed: (" . $mysqli->errno . ") " . $mysqli->error;
+	}
+	else{
+		echo "INSERT SUCCESSFUL!!";
+	
+	}
+?>

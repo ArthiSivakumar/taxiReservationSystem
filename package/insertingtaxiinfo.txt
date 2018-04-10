@@ -1,0 +1,39 @@
+
+`taxi_no`	VARCHAR(15),
+	`taxi_status`	CHAR(1) 	DEFAULT 'a',
+	`taxi_capacity`	SMALLINT(5)	NOT NULL,
+	`taxi_ac`
+
+<?php
+	$mysqli = new mysqli("localhost", "root", "", "DBMS");
+	$taxino=$_POST['TaxiNo'];
+	$status=$_POST['Status'];
+	$capacity=$_POST['Capacity'];
+	$ac=$_POST['AC'];
+	if ($mysqli->connect_errno) {
+		echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+	}
+	if (!$mysqli->query("DROP PROCEDURE IF EXISTS insertTaxiProcedure")){
+		echo "Drop procedure  failed: (" . $mysqli->errno . ") " . $mysqli->error;
+	}	 
+	echo "<br>";
+	if (!$mysqli->query("CREATE PROCEDURE insertTaxiProcedure(
+	IN TaxiNo VARCHAR(15),
+	IN TaxiStatus CHAR(1),
+	IN TaxiCapacity SMALLINT(5),
+	IN TaxiAC CHAR(1)
+	)
+            BEGIN
+                    insert into taxi values(TaxiNo,TaxiStatus,TaxiCapacity,TaxiAC);
+            END;")) {
+    echo "Stored procedure creation failed: (" . $mysqli->errno . ") " . $mysqli->error;
+					}
+	echo "<br>";
+	if (!$mysqli->query("CALL insertTaxiProcedure('$taxino','$status',$capacity,'$ac')")) {
+		echo "CALL failed: (" . $mysqli->errno . ") " . $mysqli->error;
+	}
+	else{
+		echo "INSERT SUCCESSFUL!!";
+	
+	}
+?>
